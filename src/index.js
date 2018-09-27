@@ -1,4 +1,12 @@
-import app from './app';
+/* eslint-env browser */
+import React from 'react';
+import ReactDOM from "react-dom";
 
-const { PORT = 8080 } = process.env;
-app.listen(PORT, () => console.log(`Listening on port ${PORT}`)); // eslint-disable-line no-console
+const title = 'My Minimal React Webpack Babel Setup'
+
+ReactDOM.render(
+  <div>{title}</div>,
+  document.getElementById('app'),
+)
+
+module.hot.accept();
