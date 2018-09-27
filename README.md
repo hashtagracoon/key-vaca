@@ -1,7 +1,4 @@
-# Key-Vaca Project
-migrating from express-babel
+# Key-Vaca Project (Eastern Helper)
+migrating from minimal-react-webpack-babel-airbnbeslint-setup
 
 A very small and pale-furred subspecies.
-
-npm --save-dev install eslint
-npm --save-dev install eslint-loader

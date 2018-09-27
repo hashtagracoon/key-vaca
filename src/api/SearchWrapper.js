@@ -9,8 +9,8 @@ const logger = (output) => {
   console.log(output);
 };
 
-function fetchWithTimeout( url, timeout = 7500 ) {
-    return new Promise( (resolve, reject) => {
+function fetchWithTimeout(url, timeout = 7500) {
+    return new Promise((resolve, reject) => {
         // Set timeout timer
         let timer = setTimeout(
             () => reject( new Error("Request timed out") ),

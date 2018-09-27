@@ -1,4 +1,5 @@
 const cheerio = require("cheerio-without-node-native");
+
 const logger = (output) => {
   console.log(output);
 };

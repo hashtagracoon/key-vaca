@@ -72,8 +72,8 @@ module.exports = {
       $(this).find(".sense-body").each(function(j, elem) {
         let meaning = $(this).find("b.def").first().text().trim();
         let meaningObj = {
-          "meaning": meaning,
-          "egs": []
+          meaning: meaning,
+          egs: []
         };
 
         // Get examples array
