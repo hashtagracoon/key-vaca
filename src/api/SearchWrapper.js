@@ -6,7 +6,7 @@ if (typeof fetch !== 'function') {
 }
 
 const logger = (output) => {
-  //console.log(output);
+  console.log(output);
 };
 
 function fetchWithTimeout(url, timeout = 7500) {
