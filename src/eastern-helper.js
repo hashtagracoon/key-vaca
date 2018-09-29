@@ -9,7 +9,7 @@ const checkCambridgeSearchResult = (resArr) => {
   else if(!resArr[0].pron) return false;
   else if(!resArr[0].mp3) return false;
   else if(!resArr[0].pos) return false;
-  else if(!resArr[0].gram) return false;
+  //else if(!resArr[0].gram) return false;
   else if(resArr[0].meanings.length === 0) return false;
   return true;
 };
@@ -32,31 +32,28 @@ let cambridgeTestResult = [];
 let wikipediaTestResult = [];
 let imageTestResult = [];
 
-let cambridgeTestLog = [];
-let wikipediaTestLog = [];
-let imageTestLog = [];
-
 const cambridgeRunner = (elem) => {
   return new Promise((resolve, reject) => {
     searcher.searchCambridge(elem)
     .then((resArr) => {
-      //console.log(resArr);
       if(!checkCambridgeSearchResult(resArr)) {
         cambridgeTestResult.push({
+          target: elem,
           result: "failed",
           log: resArr
         });
       }
       else {
         cambridgeTestResult.push({
+          target: elem,
           result: "pass"
         });
       }
       resolve();
     })
     .catch((err) => {
-      //console.log(err);
       cambridgeTestResult.push({
+        target: elem,
         result: "failed",
         log: err
       });
@@ -69,23 +66,24 @@ const wikipediaRunner = (elem) => {
   return new Promise((resolve, reject) => {
     searcher.searchWikipedia(elem)
     .then((resStr) => {
-      //console.log(resStr);
       if(!checkWikipediaSearchResult(resStr)) {
         wikipediaTestResult.push({
+          target: elem,
           result: "failed",
           log: resStr
         });
       }
       else {
         wikipediaTestResult.push({
+          target: elem,
           result: "pass"
         });
       }
       resolve();
     })
     .catch((err) => {
-      //console.log(err);
       wikipediaTestResult.push({
+        target: elem,
         result: "failed",
         log: err
       });
@@ -98,23 +96,24 @@ const imageRunner = (elem) => {
   return new Promise((resolve, reject) => {
     searcher.searchImage(elem)
     .then((resArr) => {
-      //console.log(resArr);
       if(!checkImageSearchResult(resArr)) {
         imageTestResult.push({
+          target: elem,
           result: "failed",
           log: resArr
         });
       }
       else {
         imageTestResult.push({
+          target: elem,
           result: "pass"
         });
       }
       resolve();
     })
     .catch((err) => {
-      //console.log(err);
       imageTestResult.push({
+        target: elem,
         result: "failed",
         log: err
       });
@@ -130,27 +129,33 @@ async function asyncRunTest() {
   await Promise.all(imageTestSuite.map(imageRunner));
   console.log("test finish");
 
-  let overallTestResult = "pass";
+  let overallTestResult = "PASS";
+  let testDetails = "";
   cambridgeTestResult.map((elem) => {
-    console.log(elem);
+    testDetails += `${elem.target}: ${elem.result}\n`;
     if(elem.result !== "pass") {
-      overallTestResult = "failed";
+      overallTestResult = "FAILED";
+      testDetails += JSON.stringify(elem.log) + "\n";
     }
   });
   wikipediaTestResult.map((elem) => {
-    console.log(elem);
+    testDetails += `${elem.target}: ${elem.result}\n`;
     if(elem.result !== "pass") {
-      overallTestResult = "failed";
+      overallTestResult = "FAILED";
+      testDetails += JSON.stringify(elem.log) + "\n";
     }
   });
   imageTestResult.map((elem) => {
-    console.log(elem);
+    testDetails += `${elem.target}: ${elem.result}\n`;
     if(elem.result !== "pass") {
-      overallTestResult = "failed";
+      overallTestResult = "FAILED";
+      testDetails += JSON.stringify(elem.log) + "\n";
     }
   });
 
   console.log("overallTestResult = " + overallTestResult);
+
+  console.log("testDetails = " + testDetails);
 
   const readword = fs.readFileSync("readfile.txt", "utf8");
   console.log("readword = " + readword);
@@ -164,11 +169,20 @@ async function asyncRunTest() {
   });
 
   const mailOptions = {
-  from: "roboticcoon@gmail.com",
-  to: "alichchiu@gmail.com",
-  subject: 'Sending Email using Node.js',
-  text: 'That was easy!'
-};
+    from: "roboticcoon@gmail.com",
+    to: "alichchiu@gmail.com",
+    subject: `[${overallTestResult}] eastern auto-test result`,
+    text: testDetails
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if(error) {
+      console.log(error);
+    }
+    else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
 
 }
 
