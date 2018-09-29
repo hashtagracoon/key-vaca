@@ -1,3 +1,5 @@
+const fs = require("fs");
+const nodemailer = require("nodemailer");
 const searcher = require("./api/SearchWrapper");
 
 const checkCambridgeSearchResult = (resArr) => {
@@ -40,19 +42,24 @@ const cambridgeRunner = (elem) => {
     .then((resArr) => {
       //console.log(resArr);
       if(!checkCambridgeSearchResult(resArr)) {
-        cambridgeTestResult.push(false);
-        cambridgeTestLog.push(resArr);
+        cambridgeTestResult.push({
+          result: "failed",
+          log: resArr
+        });
       }
       else {
-        cambridgeTestResult.push(true);
-        cambridgeTestLog.push(null);
+        cambridgeTestResult.push({
+          result: "pass"
+        });
       }
       resolve();
     })
     .catch((err) => {
       //console.log(err);
-      cambridgeTestResult.push(false);
-      cambridgeTestLog.push(err);
+      cambridgeTestResult.push({
+        result: "failed",
+        log: err
+      });
       resolve();
     });
   });
@@ -64,19 +71,24 @@ const wikipediaRunner = (elem) => {
     .then((resStr) => {
       //console.log(resStr);
       if(!checkWikipediaSearchResult(resStr)) {
-        wikipediaTestResult.push(false);
-        wikipediaTestLog.push(resStr);
+        wikipediaTestResult.push({
+          result: "failed",
+          log: resStr
+        });
       }
       else {
-        wikipediaTestResult.push(true);
-        wikipediaTestLog.push(null);
+        wikipediaTestResult.push({
+          result: "pass"
+        });
       }
       resolve();
     })
     .catch((err) => {
       //console.log(err);
-      wikipediaTestResult.push(false);
-      wikipediaTestLog.push(err);
+      wikipediaTestResult.push({
+        result: "failed",
+        log: err
+      });
       resolve();
     });
   });
@@ -88,29 +100,76 @@ const imageRunner = (elem) => {
     .then((resArr) => {
       //console.log(resArr);
       if(!checkImageSearchResult(resArr)) {
-        imageTestResult.push(false);
-        imageTestLog.push(resArr);
+        imageTestResult.push({
+          result: "failed",
+          log: resArr
+        });
       }
       else {
-        imageTestResult.push(true);
-        imageTestLog.push(null);
+        imageTestResult.push({
+          result: "pass"
+        });
       }
       resolve();
     })
     .catch((err) => {
       //console.log(err);
-      imageTestResult.push(false);
-      imageTestLog.push(err);
+      imageTestResult.push({
+        result: "failed",
+        log: err
+      });
       resolve();
     });
   });
 };
 
 async function asyncRunTest() {
+
   await Promise.all(cambridgeTestSuite.map(cambridgeRunner));
   await Promise.all(wikipediaTestSuite.map(wikipediaRunner));
   await Promise.all(imageTestSuite.map(imageRunner));
-  console.log("finish");
+  console.log("test finish");
+
+  let overallTestResult = "pass";
+  cambridgeTestResult.map((elem) => {
+    console.log(elem);
+    if(elem.result !== "pass") {
+      overallTestResult = "failed";
+    }
+  });
+  wikipediaTestResult.map((elem) => {
+    console.log(elem);
+    if(elem.result !== "pass") {
+      overallTestResult = "failed";
+    }
+  });
+  imageTestResult.map((elem) => {
+    console.log(elem);
+    if(elem.result !== "pass") {
+      overallTestResult = "failed";
+    }
+  });
+
+  console.log("overallTestResult = " + overallTestResult);
+
+  const readword = fs.readFileSync("readfile.txt", "utf8");
+  console.log("readword = " + readword);
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "roboticcoon@gmail.com",
+      pass: readword
+    }
+  });
+
+  const mailOptions = {
+  from: "roboticcoon@gmail.com",
+  to: "alichchiu@gmail.com",
+  subject: 'Sending Email using Node.js',
+  text: 'That was easy!'
+};
+
 }
 
 asyncRunTest();
