@@ -64,6 +64,45 @@ module.exports = {
 
   },
 
+  searchWebster: function(word) {
+
+    return new Promise((resolve, reject) => {
+  
+      console.log("*** search at webster ***");
+  
+      let url = "https://www.merriam-webster.com/dictionary/" + word;
+      console.log(url);
+  
+      fetch(url).then((response) => {
+        return response.text();
+      })
+      .then((text) => {
+  
+        let searchResultArray = dictionaryParser.parseWebster(text);
+  
+        if(searchResultArray.length === 0) {
+          console.log("Unable to find this word at webster");
+          reject("Not Found");
+        }
+        else {
+          console.log("Get Search Result from webster: ")
+          console.log(searchResultArray);
+          for(let i = 0; i < searchResultArray.length; i++) {
+            console.log('==== MEANING ====');
+            console.log(searchResultArray[i].meanings);
+          }
+          resolve(searchResultArray);
+        }
+  
+      })
+      .catch((err) => {
+        console.log("search word from webster error: " + err);
+        reject("Error");
+      });
+  
+    });
+  },
+
   searchWikipedia: function(word) {
 
     return new Promise((resolve, reject) => {

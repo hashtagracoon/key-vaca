@@ -14,6 +14,17 @@ const checkCambridgeSearchResult = (resArr) => {
   return true;
 };
 
+const checkWebsterSearchResult = (resArr) => {
+  if(!resArr) return false;
+  else if(resArr.length === 0) return false;
+  else if(!resArr[0].title) return false;
+  else if(!resArr[0].pron) return false;
+  else if(!resArr[0].mp3) return false;
+  else if(!resArr[0].pos) return false;
+  else if(resArr[0].meanings.length === 0) return false;
+  return true;
+};
+
 const checkWikipediaSearchResult = (resStr) => {
   if(!resStr) return false;
   return true;
@@ -25,10 +36,12 @@ const checkImageSearchResult = (resArr) => {
 };
 
 const cambridgeTestSuite = ["address", "humiliate", "as", "objective", "awesome"];
+const websterTestSuite = ["abed", "abidance", "crustaceous", "preemption", "resistless", "wherewith"];
 const wikipediaTestSuite = ["Metallica"];
 const imageTestSuite = ["raccoon"];
 
 let cambridgeTestResult = [];
+let websterTestResult = [];
 let wikipediaTestResult = [];
 let imageTestResult = [];
 
@@ -53,6 +66,36 @@ const cambridgeRunner = (elem) => {
     })
     .catch((err) => {
       cambridgeTestResult.push({
+        target: elem,
+        result: "failed",
+        log: err
+      });
+      resolve();
+    });
+  });
+};
+
+const websterRunner = (elem) => {
+  return new Promise((resolve, reject) => {
+    searcher.searchWebster(elem)
+    .then((resArr) => {
+      if(!checkWebsterSearchResult(resArr)) {
+        websterTestResult.push({
+          target: elem,
+          result: "failed",
+          log: resArr
+        });
+      }
+      else {
+        websterTestResult.push({
+          target: elem,
+          result: "pass"
+        });
+      }
+      resolve();
+    })
+    .catch((err) => {
+      websterTestResult.push({
         target: elem,
         result: "failed",
         log: err
@@ -125,6 +168,7 @@ const imageRunner = (elem) => {
 async function asyncRunTest() {
 
   await Promise.all(cambridgeTestSuite.map(cambridgeRunner));
+  await Promise.all(websterTestSuite.map(websterRunner));
   await Promise.all(wikipediaTestSuite.map(wikipediaRunner));
   await Promise.all(imageTestSuite.map(imageRunner));
   console.log("test finish");
@@ -132,6 +176,13 @@ async function asyncRunTest() {
   let overallTestResult = "PASS";
   let testDetails = "";
   cambridgeTestResult.map((elem) => {
+    testDetails += `${elem.target}: ${elem.result}\n`;
+    if(elem.result !== "pass") {
+      overallTestResult = "FAILED";
+      testDetails += JSON.stringify(elem.log) + "\n";
+    }
+  });
+  websterTestResult.map((elem) => {
     testDetails += `${elem.target}: ${elem.result}\n`;
     if(elem.result !== "pass") {
       overallTestResult = "FAILED";
